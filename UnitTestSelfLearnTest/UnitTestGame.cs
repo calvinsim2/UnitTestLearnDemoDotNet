@@ -56,6 +56,18 @@ namespace UnitTestSelfLearnTest
             return games;
         }
 
+        public static GameModel NewGame()
+        {
+            return new GameModel()
+            {
+                GameID = 0,
+                GameName = "Crazy Taxi",
+                GamePrice = 4.99
+            };
+        }
+
+
+        // =========================== GET RELATED ===========================================
         [Fact]
         public async Task GetAllGames_ReturnOk()
         {
@@ -90,15 +102,12 @@ namespace UnitTestSelfLearnTest
         }
 
         [Fact]
-        public async Task GetIndividualUser_ReturnOk()
+        public async Task GetIndividualGame_ReturnOk()
         {
 
             // Arrange
             var mockRepo = new Mock<IGeneralRepository>();
-            /*mockRepo.Setup(repo => repo.GetGameByID(1))
-                .ReturnsAsync(GetTestGames()[0]);
-            mockRepo.Setup(repo => repo.GetGameByID(0))
-                .Returns<Task<GameModel>>(null);*/
+            
             mockRepo.Setup(repo => repo.GetGameByID(2))
                 .ReturnsAsync(GetTestGames()[1]);
             var myProfile = new AutoMapperProfiles();
@@ -123,13 +132,16 @@ namespace UnitTestSelfLearnTest
         }
 
         [Fact]
-        public async Task GetIndividualUserWrongID_ReturnNotFound()
+        public async Task GetIndividualGameWrongID_ReturnNotFound()
         {
 
             // Arrange
             var mockRepo = new Mock<IGeneralRepository>();
-            mockRepo.Setup(repo => repo.GetGameByID(3))
-                .Returns<Task<GameModel>>(null) ;
+
+            // mock repo -> calling the function, but it bypasses the GeneralRepository
+            // Returns --> what I am forcing it to return 
+            mockRepo.Setup(repo => repo.GetGameByID(2))
+            .Returns(Task.FromResult<GameModel?>(null));
 
             var myProfile = new AutoMapperProfiles();
             var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
@@ -144,9 +156,178 @@ namespace UnitTestSelfLearnTest
             var controller = new GameController(mockRepo.Object, mockMapper, mockEnvironment.Object);
 
             // Act
-            var actionResult = await controller.GetExistingGameByID(3);
+            var actionResult = await controller.GetExistingGameByID(2);
 
             // Assert
+            Assert.IsType<ActionResult<GameModel>>(actionResult);
+            actionResult.Result.Should().BeOfType<NotFoundObjectResult>()
+                .Which.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
+        }
+
+        // =========================== POST RELATED ===========================================
+
+        [Fact]
+        public async Task AddingNewGameSaveAsync_ReturnOk()
+        {
+            /// Arrange
+            var mockRepo = new Mock<IGeneralRepository>();
+           
+            var myProfile = new AutoMapperProfiles();
+            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
+            var mockMapper = new Mapper(configuration);
+            var newGame = NewGame();
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+            
+            var controller = new GameController(mockRepo.Object, mockMapper, mockEnvironment.Object);
+
+            /// Act
+            var actionResult = await controller.AddGames(newGame);
+
+            /// Assert
+            Assert.IsType<ActionResult<GameModel>>(actionResult);
+            actionResult.Result.Should().BeOfType<OkObjectResult>()
+                .Which.StatusCode.Should().Be((int)HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task AddingNewGameSaveAsyncWithoutGameName_ReturnBadRequest()
+        {
+            /// Arrange
+            var mockRepo = new Mock<IGeneralRepository>();
+
+            var myProfile = new AutoMapperProfiles();
+            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
+            var mockMapper = new Mapper(configuration);
+            var newGame = NewGame();
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+
+            var controller = new GameController(mockRepo.Object, mockMapper, mockEnvironment.Object);
+
+            /// Act
+            var actionResult = await controller.AddGames(new GameModel() { });
+
+            /// Assert
+            Assert.IsType<ActionResult<GameModel>>(actionResult);
+            actionResult.Result.Should().BeOfType<BadRequestObjectResult>()
+                .Which.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        }
+
+        // =========================== UPDATE RELATED ===========================================
+
+        [Fact]
+        public async Task EditExistingGameSaveAsync_ReturnOk()
+        {
+            /// Arrange
+            var mockRepo = new Mock<IGeneralRepository>();
+            mockRepo.Setup(repo => repo.GetGameByID(2))
+                .ReturnsAsync(GetTestGames()[1]);
+            var myProfile = new AutoMapperProfiles();
+            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
+            var mockMapper = new Mapper(configuration);
+            var gameToUpdate = GetTestGames()[1];
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+
+            var controller = new GameController(mockRepo.Object, mockMapper, mockEnvironment.Object);
+
+            /// Act
+            var actionResult = await controller.UpdateExistingGames(gameToUpdate);
+
+            /// Assert
+            Assert.IsType<ActionResult<GameModel>>(actionResult);
+            actionResult.Result.Should().BeOfType<OkObjectResult>()
+                .Which.StatusCode.Should().Be((int)HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task EditExistingGameSaveAsync_ReturnNotFound()
+        {
+            /// Arrange
+            var mockRepo = new Mock<IGeneralRepository>();
+            mockRepo.Setup(repo => repo.GetGameByID(4))
+                .Returns(Task.FromResult<GameModel?>(null));
+            var myProfile = new AutoMapperProfiles();
+            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
+            var mockMapper = new Mapper(configuration);
+            var gameToUpdate = GetTestGames()[3];
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+
+            var controller = new GameController(mockRepo.Object, mockMapper, mockEnvironment.Object);
+
+            /// Act
+            var actionResult = await controller.UpdateExistingGames(gameToUpdate);
+
+            /// Assert
+            Assert.IsType<ActionResult<GameModel>>(actionResult);
+            actionResult.Result.Should().BeOfType<NotFoundObjectResult>()
+                .Which.StatusCode.Should().Be((int)HttpStatusCode.NotFound);
+        }
+
+        // =========================== Delete RELATED ===========================================
+
+        [Fact]
+        public async Task DeleteExistingGameSaveAsync_ReturnOk()
+        {
+            /// Arrange
+            var mockRepo = new Mock<IGeneralRepository>();
+            mockRepo.Setup(repo => repo.GetGameByID(2))
+                .ReturnsAsync(GetTestGames()[1]);
+            var myProfile = new AutoMapperProfiles();
+            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
+            var mockMapper = new Mapper(configuration);
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+
+            var controller = new GameController(mockRepo.Object, mockMapper, mockEnvironment.Object);
+
+            /// Act
+            var actionResult = await controller.DeleteExistingGame(2);
+
+            /// Assert
+            Assert.IsType<ActionResult<GameModel>>(actionResult);
+            actionResult.Result.Should().BeOfType<OkObjectResult>()
+                .Which.StatusCode.Should().Be((int)HttpStatusCode.OK);
+        }
+
+        [Fact]
+        public async Task DeleteExistingGameSaveAsync_ReturnBadRequest()
+        {
+            /// Arrange
+            var mockRepo = new Mock<IGeneralRepository>();
+            mockRepo.Setup(repo => repo.GetGameByID(2))
+                .Returns(Task.FromResult<GameModel?>(null));
+            var myProfile = new AutoMapperProfiles();
+            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
+            var mockMapper = new Mapper(configuration);
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+
+            var controller = new GameController(mockRepo.Object, mockMapper, mockEnvironment.Object);
+
+            /// Act
+            var actionResult = await controller.DeleteExistingGame(null);
+
+            /// Assert
+            Assert.IsType<ActionResult<GameModel>>(actionResult);
+            actionResult.Result.Should().BeOfType<BadRequestObjectResult>()
+                .Which.StatusCode.Should().Be((int)HttpStatusCode.BadRequest);
+        }
+
+        [Fact]
+        public async Task DeleteExistingGameSaveAsync_ReturnNotFound()
+        {
+            /// Arrange
+            var mockRepo = new Mock<IGeneralRepository>();
+            mockRepo.Setup(repo => repo.GetGameByID(5))
+                .Returns(Task.FromResult<GameModel?>(null));
+            var myProfile = new AutoMapperProfiles();
+            var configuration = new MapperConfiguration(cfg => cfg.AddProfile(myProfile));
+            var mockMapper = new Mapper(configuration);
+            var mockEnvironment = new Mock<IWebHostEnvironment>();
+
+            var controller = new GameController(mockRepo.Object, mockMapper, mockEnvironment.Object);
+
+            /// Act
+            var actionResult = await controller.DeleteExistingGame(5);
+
+            /// Assert
             Assert.IsType<ActionResult<GameModel>>(actionResult);
             actionResult.Result.Should().BeOfType<NotFoundObjectResult>()
                 .Which.StatusCode.Should().Be((int)HttpStatusCode.NotFound);

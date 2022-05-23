@@ -35,6 +35,18 @@ namespace DotNetUnitTestSelfLearn.Data
             return _context.GameModels.AddAsync(gameObj);
         }
 
+        public void SetGameEntityToModified(GameModel game)
+        {
+            _context.Entry(game).State = EntityState.Modified;
+        }
+
+        public void RemoveGame(GameModel game)
+        {
+            _context.GameModels.Remove(game);
+        }
+
+
+
         //============ Generic functions ==============================
         public Task<int> SaveChangesAsync()
         {

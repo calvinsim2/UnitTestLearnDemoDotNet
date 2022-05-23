@@ -73,6 +73,16 @@ namespace DotNetUnitTestSelfLearn.Controllers
                 });
             }
 
+            if (gameObj.GameName == null || gameObj.GameName == "")
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Please input Game Name Details",
+
+                });
+            }
+
             var doesGameExist = await _generalRepository.GetGameByGameName(gameObj.GameName);
 
             if (doesGameExist != null)
@@ -93,6 +103,73 @@ namespace DotNetUnitTestSelfLearn.Controllers
                 Status = 200,
                 Message = "Success - Game Added!",
                 Result = gameObj
+            });
+        }
+
+        // Update: api/Games/update
+        [HttpPut("update")]
+        public async Task<ActionResult<GameModel>> UpdateExistingGames([FromBody] GameModel gameObj)
+        {
+            if (gameObj == null)
+            {
+                return BadRequest(new
+                {
+                    StatusCode = 400,
+                    Message = "Please input data",
+
+                });
+            }
+
+            var doesGameExist = await _generalRepository.GetGameByID(gameObj.GameID);
+
+            if (doesGameExist == null)
+            {
+                return NotFound(new
+                {
+                    StatusCode = 404,
+                    Message = "Game With Specified ID not found",
+
+                });
+            }
+
+            _generalRepository.SetGameEntityToModified(gameObj);
+            await _generalRepository.SaveChangesAsync();
+            
+            return Ok(new
+            {
+                Status = 200,
+                Message = "Success - Game Edited!",
+                Result = gameObj
+            });
+        }
+
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<GameModel>> DeleteExistingGame(int? id)
+        {
+            if (id == null)
+            {
+                return BadRequest(new
+                {
+                    Status = 400,
+                    Message = "An unexpected error occured, id is null."
+                });
+            }
+            var game = await _generalRepository.GetGameByID((int)id);
+            if (game == null)
+            {
+                return NotFound(new
+                {
+                    Status = 404,
+                    Message = "Game not found!"
+                });
+            }
+            _generalRepository.RemoveGame(game);
+            await _generalRepository.SaveChangesAsync();
+
+            return Ok(new
+            {
+                Status = 200,
+                Message = "User Deleted!"
             });
         }
     }

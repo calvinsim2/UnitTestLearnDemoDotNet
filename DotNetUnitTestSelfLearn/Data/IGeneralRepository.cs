@@ -11,9 +11,13 @@ namespace DotNetUnitTestSelfLearn.Data
         Task<GameModel?> GetGameByID(int id);
 
         ValueTask<EntityEntry<GameModel>> AddGameAsync(GameModel gameObj);
+        void SetGameEntityToModified(GameModel game);
+        void RemoveGame(GameModel game);
 
 
         // generic methods
         Task<int> SaveChangesAsync();
+        
+        
     }
 }
