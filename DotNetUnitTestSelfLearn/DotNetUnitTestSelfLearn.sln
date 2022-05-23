@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32228.430
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotNetUnitTestSelfLearn", "DotNetUnitTestSelfLearn.csproj", "{36ED028C-66C4-4D8F-B927-4B714FB0F13E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestSelfLearnTest", "..\UnitTestSelfLearnTest\UnitTestSelfLearnTest.csproj", "{21E900B7-2D4A-4A37-81DD-FE6DD01A698D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{36ED028C-66C4-4D8F-B927-4B714FB0F13E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{36ED028C-66C4-4D8F-B927-4B714FB0F13E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{36ED028C-66C4-4D8F-B927-4B714FB0F13E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{36ED028C-66C4-4D8F-B927-4B714FB0F13E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21E900B7-2D4A-4A37-81DD-FE6DD01A698D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21E900B7-2D4A-4A37-81DD-FE6DD01A698D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21E900B7-2D4A-4A37-81DD-FE6DD01A698D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21E900B7-2D4A-4A37-81DD-FE6DD01A698D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {204B4E35-424B-45EA-9071-BA7A0E4C7508}
+	EndGlobalSection
+EndGlobal
